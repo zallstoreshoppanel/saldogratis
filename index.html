@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giveaway WhatsApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        h1 {
+            font-size: 22px;
+        }
+        .share-btn {
+            display: block;
+            background: #ff9800;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .disabled {
+            background: gray;
+            pointer-events: none;
+        }
+        .progress-bar {
+            background: #ddd;
+            height: 10px;
+            width: 100%;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress {
+            background: limegreen;
+            height: 100%;
+            width: 0%;
+            transition: width 1s;
+        }
+        .saldo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .withdraw-btn {
+            background: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔹 GIVEAWAY WHATSAPP 🔹</h1>
+    <p>Bantu admin mencapai 50 member! Share link ini ke 5 grup untuk mengikuti giveaway.</p>
+
+    <a id="shareBtn" class="share-btn" onclick="shareWhatsApp()">✅ Share Sekarang</a>
+
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+    
+    <p>Progress Share: <span id="shareCount">0</span>/<span id="targetShare">5</span></p>
+    
+    <p class="saldo">Saldo: Rp <span id="saldo">0</span></p>
+    
+    <button id="withdrawBtn" class="withdraw-btn disabled" onclick="withdraw()">Withdraw</button>
+    
+    <p>Minimal withdraw: Rp 50.000</p>
+</div>
+
+<script>
+    let shareCount = parseInt(localStorage.getItem('shareCount')) || 0;
+    let saldo = parseInt(localStorage.getItem('saldo')) || 0;
+    let lastShareTime = parseInt(localStorage.getItem('lastShareTime')) || 0;
+    let targetShare = parseInt(localStorage.getItem('targetShare')) || 5;
+
+    document.getElementById("shareCount").innerText = shareCount;
+    document.getElementById("saldo").innerText = saldo;
+    document.getElementById("targetShare").innerText = targetShare;
+    document.getElementById("progress").style.width = (shareCount / targetShare) * 100 + "%";
+
+    function shareWhatsApp() {
+        let now = new Date().getTime();
+        let timeDiff = now - lastShareTime;
+
+        if (timeDiff < 60 * 1000) { // 1 menit
+            alert("Kamu harus menunggu 1 menit sebelum share lagi!");
+            return;
+        }
+
+        let link = "https://chat.whatsapp.com/LOXT4RuXr428Z3SUnbrm0h";
+        let message = encodeURIComponent("Ayo join giveaway ini! Share ke 5 grup dan menangkan hadiah!\n\n" + link);
+        window.open("https://api.whatsapp.com/send?text=" + message);
+
+        lastShareTime = now;
+        localStorage.setItem('lastShareTime', lastShareTime);
+
+        document.getElementById("shareBtn").classList.add("disabled");
+        setTimeout(() => {
+            shareCount++;
+            localStorage.setItem('shareCount', shareCount);
+            document.getElementById("shareCount").innerText = shareCount;
+            document.getElementById("progress").style.width = (shareCount / targetShare) * 100 + "%";
+
+            if (shareCount >= targetShare) {
+                saldo += 10000;
+                localStorage.setItem('saldo', saldo);
+                document.getElementById("saldo").innerText = saldo;
+
+                if (saldo >= 50000) {
+                    document.getElementById("withdrawBtn").classList.remove("disabled");
+                } else {
+                    targetShare += 5;
+                    localStorage.setItem('targetShare', targetShare);
+                    document.getElementById("targetShare").innerText = targetShare;
+                }
+            }
+
+            document.getElementById("shareBtn").classList.remove("disabled");
+        }, 3000); // Jeda 3 detik
+    }
+
+    function withdraw() {
+        if (saldo < 50000) {
+            alert("Saldo minimal untuk withdraw adalah Rp 50.000! Share lagi untuk menambah saldo.");
+        } else {
+            let nomorDana = prompt("Masukkan nomor Dana Anda:");
+            if (!nomorDana || nomorDana.length < 10 || isNaN(nomorDana)) {
+                alert("Nomor Dana tidak valid!");
+                return;
+            }
+
+            alert("Withdraw berhasil! Dana telah masuk ke akun " + nomorDana);
+            saldo = 0;
+            shareCount = 0;
+            targetShare = 5;
+            localStorage.setItem('saldo', saldo);
+            localStorage.setItem('shareCount', shareCount);
+            localStorage.setItem('targetShare', targetShare);
+            document.getElementById("saldo").innerText = saldo;
+            document.getElementById("shareCount").innerText = shareCount;
+            document.getElementById("targetShare").innerText = targetShare;
+            document.getElementById("progress").style.width = "0%";
+            document.getElementById("withdrawBtn").classList.add("disabled");
+        }
+    }
+</script>
+
+</body>
+</html>
